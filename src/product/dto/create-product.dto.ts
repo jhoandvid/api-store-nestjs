@@ -1,15 +1,13 @@
-import { IsArray, IsIn, IsInt, IsOptional, IsString, Min } from "class-validator";
+import { IsArray, IsIn, IsInt, IsOptional, IsString, IsUUID, Min } from "class-validator";
+import { Category } from '../../categories/entities/category.entity';
 
 export class CreateProductDto {
     
     @IsString()
-    @IsOptional()
     productName:string;
 
-    @IsOptional()
     @IsString()
     description:string;
-     
 
     @IsInt()
     @Min(0)
@@ -23,9 +21,7 @@ export class CreateProductDto {
     @IsArray()
     picture:string[];
 
-    
-
-
-
+    @IsUUID()
+    category:Category;
 
 }

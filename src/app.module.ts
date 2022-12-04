@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductModule } from './product/product.module';
+import { SuppliersModule } from './suppliers/suppliers.module';
 
 @Module({
 
@@ -28,6 +29,8 @@ import { ProductModule } from './product/product.module';
     CategoriesModule,
 
     ProductModule,
+
+    SuppliersModule,
 
 
   

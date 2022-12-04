@@ -8,6 +8,7 @@ import { CategoryImage } from './entities/category-img.entity';
 
 @Module({
   controllers: [CategoriesController],
+  exports:[CategoriesService],
   imports:[TypeOrmModule.forFeature([Category, CategoryImage])],
   providers: [CategoriesService]
 })

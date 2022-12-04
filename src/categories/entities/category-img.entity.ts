@@ -13,8 +13,7 @@ export class CategoryImage{
     @ManyToOne(
         ()=>Category,
         (category)=> category.images,
-        {onDelete:'CASCADE'
-    })
+        {onDelete:'CASCADE'})
     category:Category;
 
 

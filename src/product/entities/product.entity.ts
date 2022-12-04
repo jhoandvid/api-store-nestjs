@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Category } from '../../categories/entities/category.entity';
+import { Supplier } from '../../suppliers/entities/supplier.entity';
 
 @Entity({name:'products'})
 export class Product {
@@ -32,7 +33,10 @@ export class Product {
     })
     picture:string[]
 
-    @ManyToOne(()=>Category,(category)=>category.product)
+    @ManyToOne(()=>Category,(category)=>category.product,{onDelete:'CASCADE'})
     category:Category;
+
+    @ManyToOne(()=>Supplier, (supplier)=>supplier.product)
+    supplier:Supplier;
 
 }
