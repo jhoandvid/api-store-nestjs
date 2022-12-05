@@ -1,5 +1,6 @@
 import { IsArray, IsIn, IsInt, IsOptional, IsString, IsUUID, Min } from "class-validator";
 import { Category } from '../../categories/entities/category.entity';
+import { Supplier } from '../../suppliers/entities/supplier.entity';
 
 export class CreateProductDto {
     
@@ -23,5 +24,8 @@ export class CreateProductDto {
 
     @IsUUID()
     category:Category;
+
+    @IsUUID()
+    supplier:Supplier;
 
 }

@@ -13,7 +13,7 @@ export class CreateSupplierDto {
     adress:string;
 
     @IsInt()
-    @MinLength(8)
+    @Min(8)
     phone:number;
 
     @IsString()
@@ -21,7 +21,7 @@ export class CreateSupplierDto {
 
 
     @IsUUID()
-    product:Product;
+    product:Product[];
 
 
 }

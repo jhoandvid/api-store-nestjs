@@ -26,7 +26,7 @@ export class Supplier {
     isActive:boolean;
 
     @OneToMany(()=>Product,(product=>product.supplier),{cascade:true})
-    product:Product[]
+    product:Product[];
 
 
 

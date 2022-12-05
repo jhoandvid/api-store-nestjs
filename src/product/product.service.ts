@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger, InternalServerErrorException, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -6,6 +6,7 @@ import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { CategoriesService } from '../categories/categories.service';
+import { SuppliersService } from '../suppliers/suppliers.service';
 
 @Injectable()
 export class ProductService {
@@ -14,24 +15,27 @@ export class ProductService {
 
   constructor
     (
-
+      
       @InjectRepository(Product)
       private readonly productRepository: Repository<Product>,
+      
+      private readonly categoryService:CategoriesService,
 
-      private readonly categoryService:CategoriesService
-    
+      @Inject(forwardRef(() => SuppliersService))
+      private readonly supplierService:SuppliersService,
+  
+
       ) {
 
   }
 
   async create(createProductDto: CreateProductDto) {
 
-    const {productName, category}=createProductDto;
+    const {productName, category, supplier}=createProductDto;
 
     const product=await this.productRepository.findOne({where:{isActive:false}});
-
-
     await this.categoryService.findOne(String(category));
+    await this.supplierService.findOne(String(supplier));
 
     if(product){
         await this.productRepository.update({productName}, {...createProductDto, isActive:true});

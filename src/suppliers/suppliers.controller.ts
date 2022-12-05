@@ -7,7 +7,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 export class SuppliersController {
   constructor(private readonly suppliersService: SuppliersService) {}
 
-  @Post()
+  @Post('/create')
   create(@Body() createSupplierDto: CreateSupplierDto) {
     return this.suppliersService.create(createSupplierDto);
   }
@@ -17,9 +17,9 @@ export class SuppliersController {
     return this.suppliersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.suppliersService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.suppliersService.findOne(term);
   }
 
   @Patch(':id')
