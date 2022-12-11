@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, forwardRef, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, forwardRef, Inject, NotFoundException, Logger, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -12,8 +12,12 @@ import { ProductService } from '../product/product.service';
 @Injectable()
 export class SuppliersService {
 
+  private readonly logger=new Logger('Supplier');
+
 
   constructor(
+
+
     @InjectRepository(Supplier)
     private readonly supplierRepository:Repository<Supplier>,
   
@@ -28,23 +32,35 @@ export class SuppliersService {
     
       const {product}=createSupplierDto;
 
-      await this.productService.findAll()
-
-
       const supplier=this.supplierRepository.create({...createSupplierDto, product});
+      await this.productService.findOne(String(product))
 
-      await this.supplierRepository.save(supplier);
+    try {
     
-
-
-    return {...supplier, product};
+      await this.supplierRepository.save(supplier);
+      return {...supplier, product};
+      
+    } catch (error) {
+        this.handlerExeption(error);
+    }
+     
+  
   }
 
   async findAll() {
 
-    const supplier=await this.supplierRepository.find({
+/*     const supplier=await this.supplierRepository.find({
+      relations:{product:{isActive:true}},
       where:{isActive:true, product:{isActive:true}}
-    })
+    }) */
+
+    const queryBuilder=this.supplierRepository.createQueryBuilder('supplier');
+
+    const supplier=await queryBuilder.leftJoinAndSelect('supplier.product','product', 'product.isActive=:active',{active:true})
+    .select(['supplier', 'product.productName'])
+    .getMany();
+
+
 
     return supplier;
   }
@@ -66,10 +82,12 @@ export class SuppliersService {
    if(isUUID(term)){
 
       supplier=await queryBuilder.leftJoinAndSelect('supplier.product', 'product', 'product.isActive =:active',{active:true})
+      .select(['supplier', 'product.productName'])
       .where('supplier.supplierId=:term',{term}).andWhere('supplier.isActive=:active', {active:true}).getOne();
 
     }else{
      supplier=await queryBuilder.leftJoinAndSelect('supplier.product', 'product', 'product.isActive =:active',{active:true})
+     .select(['supplier', 'product.productName'])
      .where('supplier.contactName=:term', {term}).andWhere('supplier.isActive=:active', {active:true}).getOne();
     } 
 
@@ -81,11 +99,52 @@ export class SuppliersService {
     return supplier;
   }
 
-  update(id: number, updateSupplierDto: UpdateSupplierDto) {
-    return `This action updates a #${id} supplier`;
+  async update(uuid: string, updateSupplierDto: UpdateSupplierDto) {
+
+  const queryBuilder=this.supplierRepository.createQueryBuilder('supplier');
+   const supplier=await queryBuilder.where('supplier.supplierId=:uuid',{uuid}).getOne(); 
+
+    if(!supplier){
+      throw new BadRequestException(`Supplier with id ${uuid} no found`);
+    }
+
+    try{
+      await this.supplierRepository.update(uuid,{...updateSupplierDto, isActive:true});
+      return { ...supplier,...updateSupplierDto, isActive:true};
+
+    }catch(error){
+        this.handlerExeption(error)
+    }
+
+
+   
+  
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} supplier`;
+  async remove(uuid: string) {
+    
+    const supplier=await this.findOne(uuid);
+
+    if(!supplier){
+      throw new NotFoundException(`Supplier with id ${uuid} no found`);
+    }
+
+    this.supplierRepository.update(uuid, {isActive:false});
+    return;
   }
+
+
+  private handlerExeption(error:any){
+    if(error.code=="23505"){
+      throw new BadRequestException(error.detail);
+    }
+    console.log(error);
+
+    this.logger.error(error);
+    throw new InternalServerErrorException(`Unexpected error, check server logs`);
+
+  }
+
 }
+
+

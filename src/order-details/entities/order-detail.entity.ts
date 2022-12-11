@@ -1,0 +1,48 @@
+import { Product } from 'src/product/entities/product.entity';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+
+
+
+@Entity({name:'order_details'})
+export class OrderDetail {
+
+    @PrimaryGeneratedColumn('uuid')
+    orderId:string;
+
+    @Column('decimal', {precision: 10, scale: 2})
+    unitPrice:number;
+
+    @Column('int')
+    quantity:number;
+
+    @Column('decimal', {precision: 10, scale: 2, default: 0})
+    discount:number;
+
+    @Column('decimal', {precision: 10, scale: 2, default: 0})
+    total:number;
+
+
+    @ManyToOne(()=>Product, (product=>product.orderDetail))
+    product:Product;
+
+
+
+    @BeforeInsert()
+    calculatePorcentaje(){
+            this.discount=(this.discount/100);
+    }
+
+    @BeforeInsert()
+    calculateTotal(){
+        let subtotal=this.quantity*this.unitPrice;
+        if(this.discount!=0){
+            this.total=subtotal-(subtotal*this.discount);
+        }else{
+            this.total=subtotal;
+        }
+
+    }
+
+
+
+}

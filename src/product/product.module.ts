@@ -7,9 +7,10 @@ import { CategoriesModule } from '../categories/categories.module';
 import { SuppliersModule } from '../suppliers/suppliers.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([Product]), CategoriesModule, forwardRef(()=>SuppliersModule)],
+  imports:[TypeOrmModule.forFeature([Product]), CategoriesModule, SuppliersModule],
   exports:[ProductService],
   controllers: [ProductController],
-  providers: [ProductService]
+  providers: [ProductService],
+  
 })
 export class ProductModule {}

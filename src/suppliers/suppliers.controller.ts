@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
@@ -22,13 +22,13 @@ export class SuppliersController {
     return this.suppliersService.findOne(term);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSupplierDto: UpdateSupplierDto) {
-    return this.suppliersService.update(+id, updateSupplierDto);
+  @Patch(':uuid')
+  update(@Param('uuid', ParseUUIDPipe) uuid: string, @Body() updateSupplierDto: UpdateSupplierDto) {
+    return this.suppliersService.update(uuid, updateSupplierDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.suppliersService.remove(+id);
+  @Delete(':uuid')
+  remove(@Param('uuid', ParseUUIDPipe) uuid: string) {
+    return this.suppliersService.remove(uuid);
   }
 }

@@ -19,6 +19,9 @@ export class CreateProductDto {
     amount:number;
 
     @IsOptional()
+    isActive:boolean;
+
+    @IsOptional()
     @IsArray()
     picture:string[];
 

@@ -20,8 +20,7 @@ export class ProductService {
       private readonly productRepository: Repository<Product>,
       
       private readonly categoryService:CategoriesService,
-
-      @Inject(forwardRef(() => SuppliersService))
+      
       private readonly supplierService:SuppliersService,
   
 
@@ -40,7 +39,6 @@ export class ProductService {
     if(product){
         await this.productRepository.update({productName}, {...createProductDto, isActive:true});
         return {...product, ...createProductDto, isActive:true}
-
     }
 
 
@@ -54,33 +52,41 @@ export class ProductService {
   }
 
   async findAll() {
-    const product = await this.productRepository.find({
-      relations: { category: true }, select: {
-        category: { categoryName: true, description: true, images: { url: false } },
-      },
-      where:{category:{isActive:true}}
-    });
-
+    const queryBuilder= this.productRepository.createQueryBuilder('product')
+    const product=await queryBuilder.leftJoinAndSelect('product.category', 'category', 'category.isActive=:active',{active:true}).select(['product', "category.categoryName"]).getMany()
     return product
   }
 
   async findOne(term: string) {
 
+    const queryBuilder=this.productRepository.createQueryBuilder('product');
+
     let product:Product;
 
     if (isUUID(term)) {
-      product = await this.productRepository.findOne({
-        relations: { category: true },
+
+        product=await queryBuilder
+        .leftJoinAndSelect('product.category', 'category', 'category.isActive=:active',{active:true})
+        .where('product.productId=:term',{term}).andWhere('product.isActive=:active', {active:true}).getOne();
+
+     /*  product = await this.productRepository.findOne({
+       
+        loadRelationIds:{relations:['category']},
         select: { category: { categoryName: true } },
         where: { productId: term, isActive:true, category:{isActive:true}},
 
-      });
+      }); */
     } else {
-      product = await this.productRepository.findOne({
+      
+      product=await queryBuilder.leftJoinAndSelect('product.category', 'category', 'category.isActive=:active',{active:true})
+      .where('product.isActive=:active',{active:true}).andWhere('product.productName=:term', {term})
+      .getOne()
+
+     /*  product = await this.productRepository.findOne({
         relations: { category: true },
         select: { category: { categoryName: true } },
         where: { productName: term, isActive:true }
-      });
+      }); */
 
     }
 
@@ -91,18 +97,16 @@ export class ProductService {
     return product;
   }
 
-  async findOneProducActivate(uuid:string){
-      const product = await this.productRepository.findOne({
-        where:{productId:uuid}
-      })
-      if(!product){
-        throw new NotFoundException(`product with id ${uuid} no found`);
-      }
-      return product;
-  }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     const product:Product=await this.findOne(id);
+
+    //TODO:realizar un metodo que permita una busqueda de los productos desactivados y poder actalizarlos
+   
+
+    if(updateProductDto.amount==0){
+      updateProductDto.isActive=false
+    }
 
     await this.productRepository.update({productId:product.productId},{...updateProductDto});
    

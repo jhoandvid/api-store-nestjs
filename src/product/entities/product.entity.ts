@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { AfterUpdate, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Category } from '../../categories/entities/category.entity';
 import { Supplier } from '../../suppliers/entities/supplier.entity';
+import { OrderDetail } from '../../order-details/entities/order-detail.entity';
 
 @Entity({name:'products'})
 export class Product {
@@ -18,7 +19,7 @@ export class Product {
     })
     description:string;
 
-    @Column('float')
+    @Column('decimal',{precision:10, scale:2, default: 0})
     price:number;
 
     @Column('int')
@@ -38,5 +39,11 @@ export class Product {
 
     @ManyToOne(()=>Supplier, (supplier)=>supplier.product)
     supplier:Supplier;
+
+
+   @OneToMany(()=>OrderDetail, (orderDetail)=>orderDetail.product)
+    orderDetail:OrderDetail[];
+
+
 
 }

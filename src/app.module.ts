@@ -2,6 +2,7 @@ import { Module, Injectable } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoriesModule } from './categories/categories.module';
+import { OrderDetailsModule } from './order-details/order-details.module';
 import { ProductModule } from './product/product.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 
@@ -22,7 +23,8 @@ import { SuppliersModule } from './suppliers/suppliers.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       autoLoadEntities:true,
-      synchronize:true
+      synchronize:true,
+
           
     }),
 
@@ -31,6 +33,8 @@ import { SuppliersModule } from './suppliers/suppliers.module';
     ProductModule,
 
     SuppliersModule,
+
+    OrderDetailsModule
 
 
   
