@@ -1,5 +1,5 @@
 import { Product } from 'src/product/entities/product.entity';
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, ManyToOne, BeforeUpdate } from 'typeorm';
 
 
 
@@ -28,19 +28,28 @@ export class OrderDetail {
 
 
     @BeforeInsert()
+    @BeforeUpdate()
     calculatePorcentaje(){
+
+        console.log("descuento"+this.discount);
+
+        if(this.discount>=1){
             this.discount=(this.discount/100);
+        }
+      
+           
     }
 
     @BeforeInsert()
+    @BeforeUpdate()
     calculateTotal(){
         let subtotal=this.quantity*this.unitPrice;
-        if(this.discount!=0){
+        if(this.discount){
             this.total=subtotal-(subtotal*this.discount);
         }else{
             this.total=subtotal;
         }
-
+        
     }
 
 

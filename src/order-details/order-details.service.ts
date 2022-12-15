@@ -1,52 +1,124 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreateOrderDetailDto } from './dto/create-order-detail.dto';
 import { UpdateOrderDetailDto } from './dto/update-order-detail.dto';
 import { OrderDetail } from './entities/order-detail.entity';
 import { ProductService } from '../product/product.service';
+import { DataSource, Repository } from 'typeorm';
+import { Product } from '../product/entities/product.entity';
 
 @Injectable()
 export class OrderDetailsService {
   
   constructor(
     @InjectRepository(OrderDetail)
-    private readonly orderDetail:Repository<OrderDetail>,
+    private readonly orderDetailRepository:Repository<OrderDetail>,
+    private readonly dataSource:DataSource,
+
     private readonly productService:ProductService
     ){
 
   }
+
+ 
+
+  async validationExistAmounProduct(existProduct:Product, productAvailable:number) {
+  
+    if(existProduct.amount<0){
+       throw new NotFoundException(`The specified quantity is not in stock, only ${productAvailable}  ${existProduct.productName} left`)
+    }
+
+    return;
+
+  }
+
+  async updateAmountProduct(product:string, otherOrderDetail:any){
+
+    console.log(otherOrderDetail);
+
+    const existProduct=await this.productService.findOne(product);
+
+    const productAvailable=existProduct.amount;
+
+    console.log("productAvailable"+ productAvailable);
+
+    
+    existProduct.amount=productAvailable-otherOrderDetail.quantity;
+
+    console.log(" existProduct.amount "+existProduct.amount);
+
+    await this.validationExistAmounProduct(existProduct, productAvailable);
+
+    this.productService.update(String(product), {...existProduct});
+
+    const priceProduct=existProduct.price;
+
+    return priceProduct;
+
+  }
+
   
   async create(createOrderDetailDto: CreateOrderDetailDto) {
 
     const {product, ...otherOrderDetail}=createOrderDetailDto;
+     /*
+    const productAvailable=existProduct.amount;
+    existProduct.amount=productAvailable-otherOrderDetail.quantity;
+    await this.validationExistAmounProduct(existProduct, productAvailable);
+    this.productService.update(String(product), {...existProduct}); */
+    
+    const priceProduct=await this.updateAmountProduct(String(product), otherOrderDetail);
 
-    const existProduct=await this.productService.findOne(String(product));
+    const orderDetailCreate=this.orderDetailRepository.create(createOrderDetailDto);
+    orderDetailCreate.unitPrice=priceProduct;
+    await this.orderDetailRepository.save(orderDetailCreate);
 
-    existProduct.amount=existProduct.amount-otherOrderDetail.quantity;
+    return orderDetailCreate;
+  }
+
+  async findAll() {
+
+   const queryBuilder=this.orderDetailRepository.createQueryBuilder('orderDetail')
+   const ordersDetails=await queryBuilder.leftJoinAndSelect('orderDetail.product', 'product').select(['orderDetail', 'product.productName']).getMany()
   
-    if(existProduct.amount<0){
-        throw new NotFoundException(`there is not the amount specified in the record`)
-    }
-
-    this.productService.update(String(product), {...existProduct})
-
-    const productCreate=this.orderDetail.create(createOrderDetailDto);
-    await this.orderDetail.save(productCreate);
-
-    return productCreate;
+    return ordersDetails;
   }
 
-  findAll() {
-    return `This action returns all orderDetails`;
+  async findOne(uuid: string) {
+
+      const orderDetail=await this.orderDetailRepository.findOne({relations:{product:true},select:{product:{productName:true, productId:true}}, where:{orderId:uuid}});
+
+      if(!orderDetail){
+        throw new NotFoundException(`OrderDetail with uuid ${uuid} not found`);
+      }
+
+      return orderDetail;
+
+
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} orderDetail`;
-  }
 
-  update(id: number, updateOrderDetailDto: UpdateOrderDetailDto) {
-    return `This action updates a #${id} orderDetail`;
+  async update(uuid: string, updateOrderDetailDto: UpdateOrderDetailDto) {
+
+     const queryRunner=this.dataSource.createQueryRunner();
+
+      const orderDetail=await this.findOne(uuid);
+      
+
+      if(!orderDetail){
+        throw new NotFoundException(`OrderDetail with uuid ${uuid} not found`);
+      }
+      const product:Product=orderDetail.product;
+
+      const quantityUpdate=updateOrderDetailDto.quantity-orderDetail.quantity;
+      
+      orderDetail.unitPrice= await this.updateAmountProduct(product.productId,{ ...updateOrderDetailDto, quantity:quantityUpdate });
+  
+     const updateDetailsOrder= await this.orderDetailRepository.preload({ ...orderDetail, ...updateOrderDetailDto, })
+      await queryRunner.manager.save(updateDetailsOrder);
+
+      return this.findOne(uuid);
+
   }
 
   remove(id: number) {

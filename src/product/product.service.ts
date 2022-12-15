@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { QueryBuilder, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { CategoriesService } from '../categories/categories.service';
 import { SuppliersService } from '../suppliers/suppliers.service';
+import { UpdateAmountProduct } from './dto/update-amount-product';
 
 @Injectable()
 export class ProductService {
@@ -42,13 +43,13 @@ export class ProductService {
     }
 
 
-    try {
-      const product=this.productRepository.create({...createProductDto});
-      await this.productRepository.save(product);
-      return {...product};
-    } catch (error) {
-      this.handlerExeption(error);
-    } 
+      try {
+        const product=this.productRepository.create({...createProductDto});
+        await this.productRepository.save(product);
+        return {...product};
+      } catch (error) {
+        this.handlerExeption(error);
+      } 
   }
 
   async findAll() {
@@ -98,11 +99,29 @@ export class ProductService {
   }
 
 
+  async updateAmountProduct(uuid:string, updateAmountProduct:UpdateAmountProduct){
+
+    const {amount}=updateAmountProduct;
+
+      const queryBuilder=this.productRepository.createQueryBuilder('product');
+
+      const product=await queryBuilder.where('product.productId=:uuid',{uuid}).getOne();
+
+      if(!product){
+        throw new BadRequestException(`Product with id ${uuid} no found`);
+      }
+
+      updateAmountProduct.amount+=product.amount;
+      
+      await this.productRepository.update(product.productId, {isActive:true,...updateAmountProduct}); 
+
+      return {...product, ...updateAmountProduct}
+
+  }
+
+
   async update(id: string, updateProductDto: UpdateProductDto) {
     const product:Product=await this.findOne(id);
-
-    //TODO:realizar un metodo que permita una busqueda de los productos desactivados y poder actalizarlos
-   
 
     if(updateProductDto.amount==0){
       updateProductDto.isActive=false
