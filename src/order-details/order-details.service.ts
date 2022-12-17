@@ -33,19 +33,12 @@ export class OrderDetailsService {
   }
 
   async updateAmountProduct(product:string, otherOrderDetail:any){
-
-    console.log(otherOrderDetail);
-
     const existProduct=await this.productService.findOne(product);
 
     const productAvailable=existProduct.amount;
 
-    console.log("productAvailable"+ productAvailable);
-
     
     existProduct.amount=productAvailable-otherOrderDetail.quantity;
-
-    console.log(" existProduct.amount "+existProduct.amount);
 
     await this.validationExistAmounProduct(existProduct, productAvailable);
 
@@ -61,11 +54,6 @@ export class OrderDetailsService {
   async create(createOrderDetailDto: CreateOrderDetailDto) {
 
     const {product, ...otherOrderDetail}=createOrderDetailDto;
-     /*
-    const productAvailable=existProduct.amount;
-    existProduct.amount=productAvailable-otherOrderDetail.quantity;
-    await this.validationExistAmounProduct(existProduct, productAvailable);
-    this.productService.update(String(product), {...existProduct}); */
     
     const priceProduct=await this.updateAmountProduct(String(product), otherOrderDetail);
 
@@ -108,20 +96,20 @@ export class OrderDetailsService {
       if(!orderDetail){
         throw new NotFoundException(`OrderDetail with uuid ${uuid} not found`);
       }
+
       const product:Product=orderDetail.product;
 
+      if(String(updateOrderDetailDto.product)!==orderDetail.product.productId){
+        throw new NotFoundException(`The product cannot be exchanged`);
+      }
+
       const quantityUpdate=updateOrderDetailDto.quantity-orderDetail.quantity;
-      
       orderDetail.unitPrice= await this.updateAmountProduct(product.productId,{ ...updateOrderDetailDto, quantity:quantityUpdate });
   
      const updateDetailsOrder= await this.orderDetailRepository.preload({ ...orderDetail, ...updateOrderDetailDto, })
       await queryRunner.manager.save(updateDetailsOrder);
-
       return this.findOne(uuid);
-
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} orderDetail`;
-  }
+
 }

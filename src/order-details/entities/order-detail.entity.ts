@@ -2,7 +2,6 @@ import { Product } from 'src/product/entities/product.entity';
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, ManyToOne, BeforeUpdate } from 'typeorm';
 
 
-
 @Entity({name:'order_details'})
 export class OrderDetail {
 
@@ -17,6 +16,11 @@ export class OrderDetail {
 
     @Column('decimal', {precision: 10, scale: 2, default: 0})
     discount:number;
+
+    @Column('date', {default:()=>"CURRENT_TIMESTAMP" })
+    dateOrder:Date
+
+    
 
     @Column('decimal', {precision: 10, scale: 2, default: 0})
     total:number;
@@ -36,6 +40,7 @@ export class OrderDetail {
         if(this.discount>=1){
             this.discount=(this.discount/100);
         }
+        
       
            
     }
