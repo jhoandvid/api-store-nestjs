@@ -1,19 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Order } from './entities/order.entity';
+import { Repository } from 'typeorm';
+import { OrderDetailsService } from '../order-details/order-details.service';
 
 @Injectable()
 export class OrdersService {
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+
+
+  constructor(
+    @InjectRepository(Order)
+    private readonly orderRepository:Repository<Order>,
+    private readonly orderDetail:OrderDetailsService
+  ){
+
   }
 
-  findAll() {
-    return `This action returns all orders`;
+  async create(createOrderDto: CreateOrderDto) {
+    
+
+    
+    
+    let fecha = new Date()
+    fecha.setDate(fecha.getDate() + 6)
+    console.log(fecha.getDay()+6);
+    const order=this.orderRepository.create({...createOrderDto, shippedDate:fecha});
+    
+
+
+    await this.orderRepository.save(order);
+    return order;
+
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findAll() {
+    return  this.orderRepository.find();
+  }
+
+  async findOne(uuid: string) {
+
+  const order=await this.orderRepository.findOne({where:{costumerId:uuid}});
+
+    if(!order){
+    throw new BadRequestException(`Order id with ${uuid} no found`);
+    }
+    
+    return order;
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {

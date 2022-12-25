@@ -1,3 +1,4 @@
+import { Order } from 'src/orders/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, ManyToOne, BeforeUpdate } from 'typeorm';
 
@@ -28,6 +29,9 @@ export class OrderDetail {
 
     @ManyToOne(()=>Product, (product=>product.orderDetail))
     product:Product;
+
+    @ManyToOne(()=>Order,(order)=>order.orderDetail)
+    order:Order;
 
 
 
