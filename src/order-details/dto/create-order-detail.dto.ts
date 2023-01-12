@@ -1,4 +1,4 @@
-import { isDecimal, isIn, min, IsInt, IsDecimal, Min, IsUUID, IsOptional, Max, isUUID } from 'class-validator';
+import {  Min, IsUUID, IsOptional, Max } from 'class-validator';
 import { Order } from 'src/orders/entities/order.entity';
 import { Product } from '../../product/entities/product.entity';
 
@@ -14,8 +14,8 @@ export class CreateOrderDetailDto {
     discount:number;
 
     
-    //@IsUUID()
-    //orders:Order;
+    @IsUUID()
+    orders:Order;
 
     @IsUUID()
     product:Product;    

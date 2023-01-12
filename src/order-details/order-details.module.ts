@@ -4,9 +4,10 @@ import { OrderDetailsController } from './order-details.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderDetail } from './entities/order-detail.entity';
 import { ProductModule } from '../product/product.module';
+import { OrdersModule } from 'src/orders/orders.module';
 
 @Module({
-  imports:[TypeOrmModule.forFeature([OrderDetail, ]), ProductModule],
+  imports:[TypeOrmModule.forFeature([OrderDetail, ]), ProductModule, OrdersModule],
   exports:[OrderDetailsService],
   controllers: [OrderDetailsController],
   providers: [OrderDetailsService]

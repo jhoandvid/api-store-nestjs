@@ -13,7 +13,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository:Repository<Order>,
-    private readonly orderDetail:OrderDetailsService
+    //private readonly orderDetail:OrderDetailsService
   ){
 
   }
@@ -22,10 +22,6 @@ export class OrdersService {
     
     let fecha = new Date()
     fecha.setDate(fecha.getDate() + 7)
-
-    
-
-
     const order=this.orderRepository.create({...createOrderDto, shippedDate:fecha});
     await this.orderRepository.save(order);
     return order;
@@ -47,11 +43,5 @@ export class OrdersService {
     return order;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
-  }
+ 
 }

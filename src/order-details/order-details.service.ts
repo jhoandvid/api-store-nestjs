@@ -6,6 +6,7 @@ import { OrderDetail } from './entities/order-detail.entity';
 import { ProductService } from '../product/product.service';
 import { DataSource, Repository } from 'typeorm';
 import { Product } from '../product/entities/product.entity';
+import { OrdersService } from 'src/orders/orders.service';
 
 @Injectable()
 export class OrderDetailsService {
@@ -14,7 +15,8 @@ export class OrderDetailsService {
     @InjectRepository(OrderDetail)
     private readonly orderDetailRepository:Repository<OrderDetail>,
     private readonly dataSource:DataSource,
-
+    
+    private readonly ordersService:OrdersService,
     private readonly productService:ProductService
     ){
 
@@ -53,10 +55,14 @@ export class OrderDetailsService {
   
   async create(createOrderDetailDto: CreateOrderDetailDto) {
 
-    const {product, ...otherOrderDetail}=createOrderDetailDto;
+    const {product, orders, ...otherOrderDetail}=createOrderDetailDto;
 
     //valid if exist a product
     await this.productService.findOne(String(product));
+    
+    //valid if exist a order
+    await this.ordersService.findOne(String(orders));
+
     
     const priceProduct=await this.updateAmountProduct(String(product), otherOrderDetail);
 
