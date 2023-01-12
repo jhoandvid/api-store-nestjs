@@ -54,6 +54,9 @@ export class OrderDetailsService {
   async create(createOrderDetailDto: CreateOrderDetailDto) {
 
     const {product, ...otherOrderDetail}=createOrderDetailDto;
+
+    //valid if exist a product
+    await this.productService.findOne(String(product));
     
     const priceProduct=await this.updateAmountProduct(String(product), otherOrderDetail);
 

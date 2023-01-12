@@ -20,16 +20,13 @@ export class OrdersService {
 
   async create(createOrderDto: CreateOrderDto) {
     
-
-    
-    
     let fecha = new Date()
-    fecha.setDate(fecha.getDate() + 6)
-    console.log(fecha.getDay()+6);
-    const order=this.orderRepository.create({...createOrderDto, shippedDate:fecha});
+    fecha.setDate(fecha.getDate() + 7)
+
     
 
 
+    const order=this.orderRepository.create({...createOrderDto, shippedDate:fecha});
     await this.orderRepository.save(order);
     return order;
 

@@ -21,8 +21,6 @@ export class OrderDetail {
     @Column('date', {default:()=>"CURRENT_TIMESTAMP" })
     dateOrder:Date
 
-    
-
     @Column('decimal', {precision: 10, scale: 2, default: 0})
     total:number;
 
@@ -38,16 +36,11 @@ export class OrderDetail {
     @BeforeInsert()
     @BeforeUpdate()
     calculatePorcentaje(){
-
-        console.log("descuento"+this.discount);
-
         if(this.discount>=1){
             this.discount=(this.discount/100);
-        }
-        
-      
-           
+        } 
     }
+
 
     @BeforeInsert()
     @BeforeUpdate()

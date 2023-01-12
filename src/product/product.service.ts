@@ -64,6 +64,17 @@ export class ProductService {
 
     let product:Product;
 
+
+    try {
+      
+
+      
+
+
+    } catch (error) {
+      
+    }
+
     if (isUUID(term)) {
 
         product=await queryBuilder
@@ -97,7 +108,7 @@ export class ProductService {
 
     return product;
   }
-
+ 
 
   async updateAmountProduct(uuid:string, updateAmountProduct:UpdateAmountProduct){
 

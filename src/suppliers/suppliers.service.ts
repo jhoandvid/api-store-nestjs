@@ -32,8 +32,8 @@ export class SuppliersService {
     
       const {product}=createSupplierDto;
 
-      const supplier=this.supplierRepository.create({...createSupplierDto, product});
       await this.productService.findOne(String(product))
+      const supplier=this.supplierRepository.create({...createSupplierDto, product});
 
     try {
     
@@ -48,11 +48,6 @@ export class SuppliersService {
   }
 
   async findAll() {
-
-/*     const supplier=await this.supplierRepository.find({
-      relations:{product:{isActive:true}},
-      where:{isActive:true, product:{isActive:true}}
-    }) */
 
     const queryBuilder=this.supplierRepository.createQueryBuilder('supplier');
 
@@ -73,11 +68,6 @@ export class SuppliersService {
     const queryBuilder=this.supplierRepository.createQueryBuilder('supplier');
 
     
-    /* supplier=await this.supplierRepository.findOne({
-      relations:{product:{isActive:true}},
-      where:{ supplierId:term, isActive:true}
-    }) */
-   
 
    if(isUUID(term)){
 
@@ -88,7 +78,8 @@ export class SuppliersService {
     }else{
      supplier=await queryBuilder.leftJoinAndSelect('supplier.product', 'product', 'product.isActive =:active',{active:true})
      .select(['supplier', 'product.productName'])
-     .where('supplier.contactName=:term', {term}).andWhere('supplier.isActive=:active', {active:true}).getOne();
+     .where('supplier.contactName=:term', {term})
+     .andWhere('supplier.isActive=:active', {active:true}).getOne();
     } 
 
 
@@ -115,10 +106,6 @@ export class SuppliersService {
     }catch(error){
         this.handlerExeption(error)
     }
-
-
-   
-  
   }
 
   async remove(uuid: string) {
