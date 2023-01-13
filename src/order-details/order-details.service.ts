@@ -15,7 +15,6 @@ export class OrderDetailsService {
     @InjectRepository(OrderDetail)
     private readonly orderDetailRepository:Repository<OrderDetail>,
     private readonly dataSource:DataSource,
-    
     private readonly ordersService:OrdersService,
     private readonly productService:ProductService
     ){
@@ -57,13 +56,12 @@ export class OrderDetailsService {
 
     const {product, orders, ...otherOrderDetail}=createOrderDetailDto;
 
-    //valid if exist a product
     await this.productService.findOne(String(product));
     
-    //valid if exist a order
+  
     await this.ordersService.findOne(String(orders));
 
-    
+
     const priceProduct=await this.updateAmountProduct(String(product), otherOrderDetail);
 
     const orderDetailCreate=this.orderDetailRepository.create(createOrderDetailDto);

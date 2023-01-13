@@ -6,6 +6,7 @@ import { OrderDetailsModule } from './order-details/order-details.module';
 import { ProductModule } from './product/product.module';
 import { SuppliersModule } from './suppliers/suppliers.module';
 import { OrdersModule } from './orders/orders.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
 
@@ -29,7 +30,8 @@ import { OrdersModule } from './orders/orders.module';
     ProductModule,
     SuppliersModule,
     OrderDetailsModule,
-    OrdersModule  
+    OrdersModule,
+    AuthModule  
   ],
 
   controllers: [],

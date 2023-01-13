@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
-import { QueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { CategoriesService } from '../categories/categories.service';
 import { SuppliersService } from '../suppliers/suppliers.service';
@@ -65,41 +65,17 @@ export class ProductService {
     let product:Product;
 
 
-    try {
-      
-
-      
-
-
-    } catch (error) {
-      
-    }
-
     if (isUUID(term)) {
 
         product=await queryBuilder
         .leftJoinAndSelect('product.category', 'category', 'category.isActive=:active',{active:true})
         .where('product.productId=:term',{term}).andWhere('product.isActive=:active', {active:true}).getOne();
 
-     /*  product = await this.productRepository.findOne({
-       
-        loadRelationIds:{relations:['category']},
-        select: { category: { categoryName: true } },
-        where: { productId: term, isActive:true, category:{isActive:true}},
-
-      }); */
     } else {
       
       product=await queryBuilder.leftJoinAndSelect('product.category', 'category', 'category.isActive=:active',{active:true})
       .where('product.isActive=:active',{active:true}).andWhere('product.productName=:term', {term})
       .getOne()
-
-     /*  product = await this.productRepository.findOne({
-        relations: { category: true },
-        select: { category: { categoryName: true } },
-        where: { productName: term, isActive:true }
-      }); */
-
     }
 
     if (!product) {

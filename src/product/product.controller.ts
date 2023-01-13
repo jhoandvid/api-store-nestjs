@@ -3,7 +3,8 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UpdateAmountProduct } from './dto/update-amount-product';
-import { runInThisContext } from 'vm';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { validRoles } from 'src/auth/interface/valid.role';
 
 @Controller('products')
 export class ProductController {
@@ -15,6 +16,7 @@ export class ProductController {
   }
 
   @Get()
+  @Auth()
   findAll() {
     return this.productService.findAll();
   }
